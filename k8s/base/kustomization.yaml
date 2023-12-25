@@ -1,0 +1,15 @@
+resources:
+  - echo-server.yaml
+  - postgres-config.yaml
+  - postgres.yaml
+  - redis.yaml
+  - ingress.yaml
+  - ./order-service/order-service.yaml
+
+# configMapGenerator
+# generate a ConfigMap named envs-<some-hash> where each key/value pair in the
+# env file appears as a data entry (separated by \n).
+configMapGenerator:
+  - name: shared-envs
+    envs:
+      - shared.env

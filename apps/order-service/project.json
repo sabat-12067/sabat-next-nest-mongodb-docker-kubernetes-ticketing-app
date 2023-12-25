@@ -15,7 +15,8 @@
         "main": "apps/order-service/src/main.ts",
         "tsConfig": "apps/order-service/tsconfig.app.json",
         "assets": ["apps/order-service/src/assets"],
-        "webpackConfig": "apps/order-service/webpack.config.js"
+        "webpackConfig": "apps/order-service/webpack.config.js",
+        "generatePackageJson": true
       },
       "configurations": {
         "development": {},
@@ -50,7 +51,7 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f apps/order-service/Dockerfile . -t order-service"
+      "command": "docker build -f apps/order-service/Dockerfile . -t mrtousif/order-service"
     }
   },
   "tags": []

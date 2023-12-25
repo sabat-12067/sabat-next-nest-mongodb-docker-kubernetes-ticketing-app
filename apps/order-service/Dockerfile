@@ -10,7 +10,7 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 
 WORKDIR /app
-
+RUN npm install -g pnpm
 RUN addgroup --system order-service && \
           adduser --system -G order-service order-service
 
@@ -19,6 +19,6 @@ RUN chown -R order-service:order-service .
 
 # You can remove this install step if you build with `--bundle` option.
 # The bundled output will include external dependencies.
-RUN npm --prefix order-service --omit=dev -f install
+RUN pnpm --dir order-service --prod install
 
 CMD [ "node", "order-service" ]
