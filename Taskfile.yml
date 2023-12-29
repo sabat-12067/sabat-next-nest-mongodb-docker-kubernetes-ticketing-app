@@ -1,0 +1,46 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  kapply:
+    cmds:
+      - kubectl apply -k ./k8s/dev
+
+  telepresence:
+    cmds:
+      - telepresence connect
+      - telepresence list
+
+  tpintercept:
+    cmds:
+      - telepresence intercept order-service-deployment --port 3000:3000 --env-file ./order-service-intercept.env
+      - cp ./order-service-intercept.env apps/order-service/.env
+
+  tpleave:
+    cmds:
+      - telepresence leave order-service-deployment
+
+  mongo:
+    desc: Get the Mongo username and password
+    cmds:
+      - ADMIN_USER=$(kubectl -n mongo get secrets my-db-psmdb-db-secrets -o jsonpath="{.data.MONGODB_USER_ADMIN_USER}" | base64 --decode)
+      - ADMIN_PASSWORD=$(kubectl -n mongo get secrets my-db-psmdb-db-secrets -o jsonpath="{.data.MONGODB_USER_ADMIN_PASSWORD}" | base64 --decode)
+      - kubectl run -i --rm --tty percona-client --image=percona/percona-server-mongodb:5.0 --restart=Never \
+        -- mongo "mongodb://${ADMIN_USER}:${ADMIN_PASSWORD}@my-db-psmdb-db-mongos.mongo.svc.cluster.local/admin?ssl=false"
+
+  mongod:
+    cmds:
+      - docker run -d --name mongo-docker \
+        -e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+        -e MONGO_INITDB_ROOT_PASSWORD=secret \
+        -v /local/datadir:/data/db \
+        percona/percona-server-mongodb:6.0.9-7

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: percona/percona-server-mongodb:6.0.9-7
+          ports:
+            - containerPort: 27017 # Exposes container port
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: mongoadmin
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: secret
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: development
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service # Sets service name
+  namespace: development
+  labels:
+    app: mongo # Labels and Selectors
+spec:
+  type: NodePort # Sets service type
+  ports:
+    - port: 27017 # Sets port to run the mongo application
+  selector:
+    app: mongo
+---
+apiVersion: v1
+# Kind for kubernetes ConfigMap
+kind: ConfigMap
+metadata:
+  # Name your ConfigMap
+  name: mongo-config
+  namespace: development
+  labels:
+    app: mongo
+data:
+  mongo-host: mongo-service

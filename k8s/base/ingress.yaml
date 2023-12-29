@@ -46,3 +46,13 @@ spec:
         #         name: client-srv
         #         port:
         #           number: 3000
+    - host: auth.ticketing.dev
+      http:
+        paths:
+          - path: /?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080

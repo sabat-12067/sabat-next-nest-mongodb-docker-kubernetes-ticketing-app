@@ -15,12 +15,11 @@
         "main": "apps/order-service/src/main.ts",
         "tsConfig": "apps/order-service/tsconfig.app.json",
         "assets": ["apps/order-service/src/assets"],
-        "webpackConfig": "apps/order-service/webpack.config.js",
-        "generatePackageJson": true
+        "webpackConfig": "apps/order-service/webpack.config.js"
       },
       "configurations": {
         "development": {},
-        "production": {}
+        "production": { "generatePackageJson": true }
       }
     },
     "serve": {
@@ -49,9 +48,31 @@
         "jestConfig": "apps/order-service/jest.config.ts"
       }
     },
-    "docker-build": {
+    "seeder": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/order-service",
+        "commands": ["npx mikro-orm seeder:run"],
+        "parallel": false
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
-      "command": "docker build -f apps/order-service/Dockerfile . -t mrtousif/order-service"
+      "options": {
+        "engine": "docker",
+        "metadata": {
+          "images": ["mrtousif/order-service"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
     }
   },
   "tags": []

@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-service-deployment
+  name: web-client-deployment
   labels:
-    app: order-service
+    app: web-client
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-service
+      app: web-client
       version: v1
   template:
     metadata:
       labels:
-        app: order-service
+        app: web-client
         version: v1
     spec:
       containers:
-        - name: order-service
-          image: mrtousif/order-service:main
+        - name: web-client
+          image: mrtousif/web-client
           imagePullPolicy: 'IfNotPresent'
           resources:
             requests:
@@ -31,29 +31,27 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: REDIS_HOST
+            - name: KEYCLOAK_ID
               valueFrom:
                 configMapKeyRef:
                   name: redis-config
                   key: redis-host
-            - name: REDIS_PORT
+            - name: KEYCLOAK_SECRET
               value: '6379'
-            - name: MONGO_HOST
+            - name: KEYCLOAK_ISSUER
               valueFrom:
                 configMapKeyRef:
                   name: mongo-config
                   key: mongo-host
-            - name: MONGO_PORT
-              value: '27017'
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: order-service
+  name: web-client
 spec:
   #   type: NodePort
   selector:
-    app: order-service
+    app: web-client
   ports:
     - protocol: TCP
       port: 3000

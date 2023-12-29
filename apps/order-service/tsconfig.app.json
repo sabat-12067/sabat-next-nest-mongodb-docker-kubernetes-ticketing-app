@@ -16,5 +16,5 @@
   ],
   "include": [
     "src/**/*.ts"
-  ]
+, "../../mikro-orm.config.ts", "mikro-orm.config.ts"  ]
 }
