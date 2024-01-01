@@ -15,7 +15,9 @@
         "development": {
           "outputPath": "apps/web-client"
         },
-        "production": {}
+        "production": {
+          "generateLockfile": true
+        }
       }
     },
     "serve": {
@@ -28,7 +30,8 @@
       "configurations": {
         "development": {
           "buildTarget": "web-client:build:development",
-          "dev": true
+          "dev": true,
+          "port": 3000
         },
         "production": {
           "buildTarget": "web-client:build:production",

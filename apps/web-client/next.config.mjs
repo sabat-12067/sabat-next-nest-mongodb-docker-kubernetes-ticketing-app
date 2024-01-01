@@ -1,7 +1,7 @@
 //@ts-check
-
+import './env.validate.mjs';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { composePlugins, withNx } = require('@nx/next');
+import { composePlugins, withNx } from '@nx/next';
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -12,6 +12,11 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+
+  compiler: {
+    // For other options, see https://styled-components.com/docs/tooling#babel-plugin
+    styledComponents: true,
+  },
 };
 
 const plugins = [
@@ -19,4 +24,4 @@ const plugins = [
   withNx,
 ];
 
-module.exports = composePlugins(...plugins)(nextConfig);
+export default composePlugins(...plugins)(nextConfig);

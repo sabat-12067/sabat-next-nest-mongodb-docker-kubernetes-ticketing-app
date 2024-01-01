@@ -55,7 +55,7 @@
     },
     "@nx/next": {
       "application": {
-        "style": "styled-jsx",
+        "style": "styled-components",
         "linter": "eslint"
       }
     }

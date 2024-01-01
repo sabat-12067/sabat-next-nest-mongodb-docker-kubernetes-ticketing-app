@@ -5,13 +5,11 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { setupSession } from '@finastra/nestjs-oidc';
 
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  setupSession(app, 'auth');
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

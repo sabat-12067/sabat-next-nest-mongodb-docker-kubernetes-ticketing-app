@@ -1,4 +1,3 @@
-import { LOGIN_SESSION_COOKIE } from '@finastra/nestjs-oidc';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 
@@ -11,9 +10,6 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     // Add the LOGIN_SESSION_COOKIE to make sure to prompt the login page if the user has already authenticated before
-    res.cookie(LOGIN_SESSION_COOKIE, 'logging in', {
-      maxAge: 15 * 1000 * 60,
-    });
 
     // If you want to send the query params to the login middleware
     const searchParams = new URLSearchParams(req.query);
