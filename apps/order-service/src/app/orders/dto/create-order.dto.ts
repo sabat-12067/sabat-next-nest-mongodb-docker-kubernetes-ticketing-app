@@ -4,5 +4,6 @@ export class CreateOrderDto {
   @IsNotEmpty()
   readonly ticketId: string;
 
+  @IsNotEmpty()
   readonly status: string;
 }

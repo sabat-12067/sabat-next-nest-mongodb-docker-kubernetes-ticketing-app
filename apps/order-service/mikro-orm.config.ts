@@ -7,7 +7,7 @@ export default defineConfig({
   debug: true,
   entities: ['../../dist/apps/**/*.entity.js'], // path to our JS entities (dist), relative to `baseDir`
   entitiesTs: ['./src/app/**/*.entity.ts'], // path to our TS entities (src), relative to `baseDir`
-  clientUrl: process.env.MONGO_HOST,
+  clientUrl: process.env.MONGO_URI,
   seeder: {
     path: './src/seeders', // path to the folder with seeders
     pathTs: undefined, // path to the folder with TS seeders (if used, we should put path to compiled files in `path`)

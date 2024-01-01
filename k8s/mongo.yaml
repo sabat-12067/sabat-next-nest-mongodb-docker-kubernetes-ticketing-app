@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongo
-  namespace: development
+  namespace: mongodb
 spec:
   replicas: 1
   selector:
@@ -35,7 +35,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongo-pvc
-  namespace: development
+  namespace: mongodb
 spec:
   accessModes:
     - ReadWriteOnce
@@ -47,7 +47,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongo-service # Sets service name
-  namespace: development
+  namespace: mongodb
   labels:
     app: mongo # Labels and Selectors
 spec:
@@ -63,7 +63,7 @@ kind: ConfigMap
 metadata:
   # Name your ConfigMap
   name: mongo-config
-  namespace: development
+  namespace: mongodb
   labels:
     app: mongo
 data:

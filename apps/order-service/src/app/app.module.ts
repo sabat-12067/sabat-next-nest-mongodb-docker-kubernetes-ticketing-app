@@ -5,6 +5,9 @@ import { MikroOrmModule, MikroOrmMiddleware } from '@mikro-orm/nestjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
+import { AuthGuard, AuthModule } from '@ticketing-app/nest-common';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,9 +20,17 @@ import { OrdersModule } from './orders/orders.module';
       clientUrl: process.env.MONGO_URI,
     }),
     OrdersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    JwtService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   constructor(private readonly orm: MikroORM) {}

@@ -11,34 +11,45 @@ import {
   ManyToOne,
   Ref,
   ref,
+  Unique,
 } from '@mikro-orm/core';
 import { BaseEntity } from '../../base.entity';
 import { Ticket } from './ticket.entity';
 import { OrderRepository } from '../order.repository';
+import { User } from './user.entity';
 
 @Entity({ repository: () => OrderRepository, tableName: 'orders' })
+@Unique({ properties: ['ticket', 'user'] })
 export class Order extends BaseEntity {
   [EntityRepositoryType]?: OrderRepository;
-
-  @Property()
-  userId: string;
 
   @Enum(() => OrderStatus)
   @Index()
   status: OrderStatus = OrderStatus.CREATED;
 
-  @Property({ hidden: true })
+  @Property()
   expiresAt: Date;
 
   @ManyToOne(() => Ticket, { ref: true, fieldName: 'ticketId' })
   ticket: Ref<Ticket>;
 
-  constructor(userId: string, status: OrderStatus, ticket: Ticket) {
+  @ManyToOne(() => User, { ref: true, fieldName: 'userId' })
+  user: Ref<User>;
+
+  constructor({ user, status, ticket, expiresAt }: Props) {
     super();
-    this.userId = userId;
+    this.user = ref(user);
     this.status = status;
     this.ticket = ref(ticket);
+    this.expiresAt = expiresAt;
   }
+}
+
+interface Props {
+  user: User;
+  status: OrderStatus;
+  ticket: Ticket;
+  expiresAt: Date;
 }
 
 export enum OrderStatus {
