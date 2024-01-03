@@ -1,19 +1,16 @@
 import {
-  Cascade,
   Collection,
   Entity,
   EntityRepositoryType,
-  ManyToMany,
   OneToMany,
   Property,
-  wrap,
 } from '@mikro-orm/core';
-import { BaseEntity } from '../../base.entity';
-import { Order } from './order.entity';
+import { Order } from './../../orders/entities/order.entity';
 import { TicketRepository } from '../ticket.repository';
+import { MongoBaseEntity } from '@ticketing-app/nest-common';
 
 @Entity({ repository: () => TicketRepository, tableName: 'tickets' })
-export class Ticket extends BaseEntity {
+export class Ticket extends MongoBaseEntity {
   [EntityRepositoryType]?: TicketRepository;
 
   @Property()
@@ -25,9 +22,14 @@ export class Ticket extends BaseEntity {
   @OneToMany(() => Order, (order) => order.ticket, { lazy: true })
   orders = new Collection<Order>(this);
 
-  constructor(title: string, price: number) {
+  constructor(props: Props) {
     super();
-    this.title = title;
-    this.price = price;
+    this.title = props.title;
+    this.price = props.price;
   }
+}
+
+interface Props {
+  title: string;
+  price: number;
 }

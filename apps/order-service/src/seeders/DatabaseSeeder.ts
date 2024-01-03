@@ -1,9 +1,9 @@
 import type { Dictionary, EntityManager } from '@mikro-orm/core';
 import { Seeder, Factory, Faker } from '@mikro-orm/seeder';
-import { Ticket } from '../app/orders/entities/ticket.entity';
-import { Order, OrderStatus } from '../app/orders/entities/order.entity';
+import { Ticket } from '../app/tickets/entities/ticket.entity';
+import { Order } from '../app/orders/entities/order.entity';
 import { User } from '../app/orders/entities/user.entity';
-
+import { OrderStatus } from '@ticketing-app/nest-common';
 export class TicketFactory extends Factory<Ticket> {
   model = Ticket;
 

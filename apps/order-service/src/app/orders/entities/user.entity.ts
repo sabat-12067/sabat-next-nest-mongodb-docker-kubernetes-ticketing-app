@@ -9,14 +9,14 @@ import {
   Unique,
   wrap,
 } from '@mikro-orm/core';
-import { BaseEntity } from '../../base.entity';
 // import { Order } from './order.entity';
 import { UserRepository } from '../user.repository';
 import { IsUUID } from 'class-validator';
 import { Order } from './order.entity';
+import { MongoBaseEntity } from '@ticketing-app/nest-common';
 
 @Entity({ repository: () => UserRepository, tableName: 'users' })
-export class User extends BaseEntity {
+export class User extends MongoBaseEntity {
   [EntityRepositoryType]?: UserRepository;
 
   @Property()

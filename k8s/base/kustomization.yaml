@@ -2,6 +2,7 @@ resources:
   - echo-server.yaml
   - ingress.yaml
   - ./order-service/order-service.yaml
+  - ./tickets-service/tickets-service.yaml
   - ./web-client/web-client.yaml
 
 # configMapGenerator

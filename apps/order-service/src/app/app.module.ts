@@ -1,34 +1,61 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
 import { MikroOrmModule, MikroOrmMiddleware } from '@mikro-orm/nestjs';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
-import { AuthGuard, AuthModule } from '@ticketing-app/nest-common';
-import { APP_GUARD } from '@nestjs/core';
+import {
+  AuthGuard,
+  AuthModule,
+  HealthModule,
+  NestPinoModule,
+} from '@ticketing-app/nest-common';
+import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { ENVALID, EnvalidModule } from 'nestjs-envalid';
+import { Config, validators } from './config';
+import { LoggerErrorInterceptor } from 'nestjs-pino';
+import { TicketsModule } from './tickets/tickets.module';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      dbName: 'order-db',
-      type: 'mongo',
-      autoLoadEntities: true,
-      ensureIndexes: true,
-      debug: true,
-      clientUrl: process.env.MONGO_URI,
+    EnvalidModule.forRoot({ validators, isGlobal: true }),
+    MikroOrmModule.forRootAsync({
+      inject: [ENVALID],
+      useFactory: (env: Config) => {
+        return {
+          dbName: 'order-db',
+          type: 'mongo',
+          autoLoadEntities: true,
+          ensureIndexes: true,
+          debug: env.isDev,
+          clientUrl: env.MONGO_URI,
+        };
+      },
     }),
     OrdersModule,
+    TicketsModule,
     AuthModule,
+    HealthModule,
+    NestPinoModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     JwtService,
     {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerErrorInterceptor,
     },
   ],
 })

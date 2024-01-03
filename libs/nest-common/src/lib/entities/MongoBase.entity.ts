@@ -7,7 +7,7 @@ import {
 import { ObjectId } from '@mikro-orm/mongodb';
 
 @Entity({ abstract: true })
-export abstract class BaseEntity {
+export abstract class MongoBaseEntity {
   @PrimaryKey({ hidden: true })
   _id!: ObjectId;
 

@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import FusionAuthProvider from 'next-auth/providers/fusionauth';
-import type { AuthOptions, TokenSet } from 'next-auth';
+import type { AuthOptions } from 'next-auth';
 import { env } from '../../../utils';
 
 export const authOptions = {
@@ -20,8 +20,6 @@ export const authOptions = {
       return session;
     },
     async jwt({ token, account }) {
-      console.log('JWTA', account, token);
-
       if (account && account.expires_at) {
         // Save the access token and refresh token in the JWT on the initial login
         return {
@@ -48,15 +46,15 @@ export const authOptions = {
             method: 'POST',
           });
 
-          const tokens: TokenSet = await response.json();
+          const tokens: AuthResponse = await response.json();
 
           if (!response.ok) throw tokens;
-          console.log('Token refreshed', tokens);
+          console.debug('Token refreshed', tokens);
 
           return {
             ...token, // Keep the previous token properties
             access_token: tokens.access_token,
-            expires_at: tokens.expires_at,
+            expires_at: Math.floor(Date.now() / 1000 + tokens.expires_in),
             // Fall back to old refresh token, but note that
             // many providers may only allow using a refresh token once.
             refresh_token: tokens.refresh_token ?? token.refresh_token,
@@ -84,10 +82,18 @@ declare module 'next-auth/jwt' {
   interface JWT {
     access_token: string;
     expires_at: number;
-    iat: number;
-    exp: number;
-    jti: string;
     refresh_token: string;
     error?: 'RefreshAccessTokenError';
   }
+}
+
+interface AuthResponse {
+  access_token: string;
+  expires_in: number;
+  id_token: string;
+  refresh_token: string;
+  refresh_token_id: string;
+  scope: string;
+  token_type: string;
+  userId: string;
 }

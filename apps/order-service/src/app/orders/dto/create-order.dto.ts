@@ -1,9 +1,10 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsEnum } from 'class-validator';
+import { OrderStatus } from '@ticketing-app/nest-common';
 
 export class CreateOrderDto {
   @IsNotEmpty()
   readonly ticketId: string;
 
-  @IsNotEmpty()
+  @IsEnum(OrderStatus)
   readonly status: string;
 }

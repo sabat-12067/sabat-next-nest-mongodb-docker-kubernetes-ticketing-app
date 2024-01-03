@@ -16,10 +16,7 @@
         "name": "next"
       }
     ],
-    "types": [
-      "jest",
-      "node"
-    ]
+    "types": ["jest", "node"]
   },
   "include": [
     "**/*.ts",
@@ -29,7 +26,10 @@
     "../../apps/web-client/.next/types/**/*.ts",
     "../../dist/apps/web-client/.next/types/**/*.ts",
     "next-env.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "env.validate.mjs",
+    "env.mjs",
+    "next.config.mjs"
   ],
   "exclude": [
     "node_modules",

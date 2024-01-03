@@ -1,26 +1,38 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager, wrap } from '@mikro-orm/core';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderRepository } from './order.repository';
-import { TicketRepository } from './ticket.repository';
-import { Order, OrderStatus } from './entities/order.entity';
+import { TicketRepository } from '../tickets/ticket.repository';
+import { Order } from './entities/order.entity';
 import { validate } from 'class-validator';
 import { UserRepository } from './user.repository';
+import {
+  OrderStatus,
+  OrderCreatedEvent,
+  Topics,
+  OrderCancelledEvent,
+} from '@ticketing-app/nest-common';
+import { ClientKafka } from '@nestjs/microservices';
 
 const EXPIRATION_WINDOW_SECONDS = 1 * 60;
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly ticketRepository: TicketRepository,
     private readonly userRepository: UserRepository,
-    private readonly em: EntityManager
+    private readonly em: EntityManager,
+    @Inject('TICKETS_SERVICE')
+    private readonly ticketClient: ClientKafka
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userAuthId: string) {
@@ -63,6 +75,21 @@ export class OrdersService {
       });
     } else {
       await this.em.persistAndFlush(order);
+
+      this.ticketClient.emit(
+        Topics.OrderCreated,
+        new OrderCreatedEvent({
+          id: order.id,
+          // version: order.version,
+          status: order.status,
+          userId: userAuthId,
+          expiresAt: order.expiresAt.toISOString(),
+          ticket: {
+            id: order.ticket.id,
+            price: order.ticket.price,
+          },
+        })
+      );
       delete order['user'];
       return order;
     }
@@ -83,15 +110,49 @@ export class OrdersService {
     return orders;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  findOne(id: string) {
+    return this.orderRepository.findOne({ id });
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderRepository.findOne({ id });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    wrap(order).assign(updateOrderDto);
+    await this.em.flush();
+
+    if (order.status === OrderStatus.CANCELLED) {
+      this.ticketClient.emit(
+        Topics.OrderCancelled,
+        new OrderCancelledEvent({
+          id: order.id,
+          ticket: {
+            id: order.ticket.id,
+          },
+        })
+      );
+    }
+
+    return order;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async remove(id: string, userId?: string) {
+    const order = await this.orderRepository.findOne({ id, user: userId });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    await this.orderRepository.nativeDelete({ id });
+
+    this.ticketClient.emit(
+      Topics.OrderCancelled,
+      new OrderCancelledEvent({
+        id: order.id,
+        ticket: {
+          id: order.ticket.id,
+        },
+      })
+    );
+    return order;
   }
 }

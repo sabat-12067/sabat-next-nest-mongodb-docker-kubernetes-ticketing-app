@@ -8,7 +8,6 @@ import { OidcFactory, jwksClient } from './oidc';
     JwtModule.registerAsync({
       useFactory: async () => {
         const key = await jwksClient.getSigningKey();
-        console.log(key);
 
         return {
           publicKey: key.getPublicKey(),

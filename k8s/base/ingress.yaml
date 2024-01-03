@@ -18,20 +18,13 @@ spec:
                 name: echo-server-service
                 port:
                   number: 8080
-          #   - path: /api/users/?(.*)
-          #     pathType: ImplementationSpecific
-          #     backend:
-          #       service:
-          #         name: auth-srv
-          #         port:
-          #           number: 3000
-          #   - path: /api/tickets/?(.*)
-          #     pathType: ImplementationSpecific
-          #     backend:
-          #       service:
-          #         name: tickets-srv
-          #         port:
-          #           number: 3000
+          - path: /api/tickets/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tickets-service
+                port:
+                  number: 3000
           - path: /api/orders/?(.*)
             pathType: ImplementationSpecific
             backend:
