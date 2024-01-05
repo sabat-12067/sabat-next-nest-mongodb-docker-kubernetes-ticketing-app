@@ -1,5 +1,5 @@
 import { ITicketCreatedEvent } from '@ticketing-app/nest-common';
-import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class CreateTicketDto implements ITicketCreatedEvent {
   @IsNotEmpty()
@@ -9,6 +9,7 @@ export class CreateTicketDto implements ITicketCreatedEvent {
   title: string;
 
   @IsNotEmpty()
+  @Min(0)
   price: number;
 
   @IsOptional()

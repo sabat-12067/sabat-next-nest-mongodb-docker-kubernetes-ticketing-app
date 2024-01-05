@@ -18,15 +18,17 @@ export class Ticket extends MongoBaseEntity {
   @Property({ nullable: true })
   orderId?: string;
 
-  constructor({ title, price, userId }: Props) {
+  constructor(props: Props) {
     super();
-    this.title = title;
-    this.price = price;
-    this.userId = userId;
+
+    this.title = props.title;
+    this.price = props.price;
+    this.userId = props.userId;
   }
 }
 
 interface Props {
+  id?: string;
   title: string;
   price: number;
   userId: string;

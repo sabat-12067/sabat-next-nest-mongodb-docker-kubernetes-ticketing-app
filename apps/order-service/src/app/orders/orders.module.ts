@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Ticket } from '../tickets/entities/ticket.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { env } from '../config';
 
 @Module({
   imports: [
@@ -14,11 +15,12 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ClientsModule.register([
       {
         name: 'TICKETS_SERVICE',
-        transport: Transport.KAFKA,
+        transport: Transport.RMQ,
         options: {
-          client: { clientId: 'ticket', brokers: ['localhost:9094'] },
-          consumer: {
-            groupId: 'ticket-consumer',
+          urls: [env.RABBIT_MQ],
+          queue: 'tickets_queue',
+          queueOptions: {
+            durable: true,
           },
         },
       },

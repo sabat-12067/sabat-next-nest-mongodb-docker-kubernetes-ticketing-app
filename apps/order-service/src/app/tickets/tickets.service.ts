@@ -1,10 +1,9 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketRepository } from './ticket.repository';
 
 import { EntityManager, wrap } from '@mikro-orm/core';
-import { ClientKafka } from '@nestjs/microservices';
 import { Ticket } from './entities/ticket.entity';
 
 @Injectable()

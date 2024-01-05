@@ -7,3 +7,4 @@ export * from './lib/entities/MongoBase.entity';
 export * from './lib/health/health.module';
 export * from './lib/events/index';
 export * from './lib/logger/pino.module';
+export * from './lib/interceptors/index';

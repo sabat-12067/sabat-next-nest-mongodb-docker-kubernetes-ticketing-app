@@ -1,23 +1,25 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketServiceDto } from './dto/update-ticket.dto';
 import { Ticket } from './entities/ticket.entity';
 import { TicketRepository } from './ticket.repository';
 import { EntityManager, wrap } from '@mikro-orm/core';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientRMQ } from '@nestjs/microservices';
 import {
   Topics,
-  TicketCreatedEvent,
-  TicketUpdatedEvent,
+  ITicketCreatedEvent,
+  ITicketUpdatedEvent,
 } from '@ticketing-app/nest-common';
 
 @Injectable()
 export class TicketsService {
+  private readonly logger = new Logger(TicketsService.name);
+
   constructor(
     private readonly ticketRepository: TicketRepository,
     private readonly em: EntityManager,
     @Inject('ORDER_SERVICE')
-    private readonly orderClient: ClientKafka
+    private readonly orderClient: ClientRMQ
   ) {}
 
   async create(createTicketDto: CreateTicketDto, userId: string) {
@@ -26,16 +28,13 @@ export class TicketsService {
 
     await this.em.persistAndFlush(ticket);
 
-    this.orderClient.emit(
-      Topics.TicketCreated,
-      new TicketCreatedEvent({
-        id: ticket.id,
-        price: ticket.price,
-        title: ticket.title,
-        userId: ticket.userId,
-        version: 1,
-      })
-    );
+    this.orderClient.emit<void, ITicketCreatedEvent>(Topics.TicketCreated, {
+      id: ticket.id,
+      price: ticket.price,
+      title: ticket.title,
+      userId: ticket.userId,
+      version: 1,
+    });
     return ticket;
   }
 
@@ -55,17 +54,15 @@ export class TicketsService {
     wrap(ticket).assign(updateTicketDto);
     await this.em.flush();
 
-    this.orderClient.emit(
-      Topics.TicketUpdated,
-      new TicketUpdatedEvent({
-        id: ticket.id,
-        price: ticket.price,
-        title: ticket.title,
-        userId: ticket.userId,
-        orderId: ticket.orderId,
-        // version: ticket.version,
-      })
-    );
+    this.orderClient.emit<void, ITicketUpdatedEvent>(Topics.TicketUpdated, {
+      id: ticket.id,
+      price: ticket.price,
+      title: ticket.title,
+      userId: ticket.userId,
+      orderId: ticket.orderId,
+      // version: ticket.version,
+    });
+    this.logger.log(ticket, 'Updated ticket');
     return ticket;
   }
 

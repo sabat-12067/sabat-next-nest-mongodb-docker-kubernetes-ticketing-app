@@ -12,14 +12,13 @@ import {
   AuthModule,
   HealthModule,
   NestPinoModule,
+  TimeoutInterceptor,
 } from '@ticketing-app/nest-common';
 import { JwtService } from '@nestjs/jwt';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ENVALID, EnvalidModule } from 'nestjs-envalid';
 import { validators, Config } from './config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
-import { TempModule } from './temp/temp.module';
 
 @Module({
   imports: [
@@ -41,10 +40,8 @@ import { TempModule } from './temp/temp.module';
     AuthModule,
     HealthModule,
     NestPinoModule,
-    TempModule,
   ],
   providers: [
-    JwtService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
@@ -53,6 +50,11 @@ import { TempModule } from './temp/temp.module';
       provide: APP_INTERCEPTOR,
       useClass: LoggerErrorInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
+    JwtService,
   ],
 })
 export class AppModule implements NestModule {

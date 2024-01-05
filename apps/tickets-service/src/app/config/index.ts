@@ -13,6 +13,7 @@ const ENVS = {
   FUSIONAUTH_TENANT_ID: str(),
   FUSIONAUTH_URL: url(),
   HOSTNAME: str({ devDefault: 'tickets-service' }),
+  RABBIT_MQ: url()
 };
 
 export const env = cleanEnv(process.env, ENVS);

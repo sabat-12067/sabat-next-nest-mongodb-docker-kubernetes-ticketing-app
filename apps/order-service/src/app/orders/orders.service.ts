@@ -15,11 +15,11 @@ import { validate } from 'class-validator';
 import { UserRepository } from './user.repository';
 import {
   OrderStatus,
-  OrderCreatedEvent,
   Topics,
-  OrderCancelledEvent,
+  IOrderCreatedEvent,
+  IOrderCancelledEvent,
 } from '@ticketing-app/nest-common';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientRMQ } from '@nestjs/microservices';
 
 const EXPIRATION_WINDOW_SECONDS = 1 * 60;
 
@@ -32,7 +32,7 @@ export class OrdersService {
     private readonly userRepository: UserRepository,
     private readonly em: EntityManager,
     @Inject('TICKETS_SERVICE')
-    private readonly ticketClient: ClientKafka
+    private readonly ticketClient: ClientRMQ
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userAuthId: string) {
@@ -76,20 +76,19 @@ export class OrdersService {
     } else {
       await this.em.persistAndFlush(order);
 
-      this.ticketClient.emit(
-        Topics.OrderCreated,
-        new OrderCreatedEvent({
-          id: order.id,
-          // version: order.version,
-          status: order.status,
-          userId: userAuthId,
-          expiresAt: order.expiresAt.toISOString(),
-          ticket: {
-            id: order.ticket.id,
-            price: order.ticket.price,
-          },
-        })
-      );
+      this.ticketClient.emit<void, IOrderCreatedEvent>(Topics.OrderCreated, {
+        id: order.id,
+        // version: order.version,
+        status: order.status,
+        userId: userAuthId,
+        expiresAt: order.expiresAt.toISOString(),
+        ticket: {
+          id: order.ticket.id,
+          price: order.ticket.price,
+        },
+      });
+      this.logger.log(order);
+
       delete order['user'];
       return order;
     }
@@ -123,16 +122,17 @@ export class OrdersService {
     await this.em.flush();
 
     if (order.status === OrderStatus.CANCELLED) {
-      this.ticketClient.emit(
+      this.ticketClient.emit<void, IOrderCancelledEvent>(
         Topics.OrderCancelled,
-        new OrderCancelledEvent({
+        {
           id: order.id,
           ticket: {
             id: order.ticket.id,
           },
-        })
+        }
       );
     }
+    this.logger.log(order);
 
     return order;
   }
@@ -144,15 +144,13 @@ export class OrdersService {
     }
     await this.orderRepository.nativeDelete({ id });
 
-    this.ticketClient.emit(
-      Topics.OrderCancelled,
-      new OrderCancelledEvent({
-        id: order.id,
-        ticket: {
-          id: order.ticket.id,
-        },
-      })
-    );
+    this.ticketClient.emit<void, IOrderCancelledEvent>(Topics.OrderCancelled, {
+      id: order.id,
+      ticket: {
+        id: order.ticket.id,
+      },
+    });
+    this.logger.log(order);
     return order;
   }
 }

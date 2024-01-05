@@ -7,15 +7,16 @@ import {
   Param,
   Delete,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import {
   AuthGuard,
-  IOrderCancelledEvent,
-  IOrderCreatedEvent,
   LoggedInUser,
+  OrderCancelledEventDto,
+  OrderCreatedEventDto,
   Public,
   Topics,
 } from '@ticketing-app/nest-common';
@@ -26,6 +27,7 @@ import { CreateRequestContext, MikroORM } from '@mikro-orm/core';
 @UseGuards(AuthGuard)
 @Controller('tickets')
 export class TicketsController {
+  private readonly logger = new Logger(TicketsController.name);
   constructor(
     private readonly ticketsService: TicketsService,
     private readonly orm: MikroORM
@@ -62,19 +64,19 @@ export class TicketsController {
     return this.ticketsService.remove(id);
   }
 
-  @Public()
   @EventPattern(Topics.OrderCreated)
   @CreateRequestContext()
-  async handleOrderCreated(@Payload() payload: IOrderCreatedEvent) {
+  async handleOrderCreated(@Payload() payload: OrderCreatedEventDto) {
+    this.logger.log(payload, 'handleOrderCreated');
     return await this.ticketsService.update(payload.ticket.id, {
       orderId: payload.id,
     });
   }
 
-  @Public()
   @EventPattern(Topics.OrderCancelled)
   @CreateRequestContext()
-  async handleOrderCancelled(@Payload() payload: IOrderCancelledEvent) {
+  async handleOrderCancelled(@Payload() payload: OrderCancelledEventDto) {
+    this.logger.log(payload);
     return this.ticketsService.update(payload.ticket.id, {
       orderId: undefined,
     });

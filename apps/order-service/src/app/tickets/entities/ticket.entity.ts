@@ -24,12 +24,14 @@ export class Ticket extends MongoBaseEntity {
 
   constructor(props: Props) {
     super();
+    this.id = props.id;
     this.title = props.title;
     this.price = props.price;
   }
 }
 
 interface Props {
+  id?: string;
   title: string;
   price: number;
 }

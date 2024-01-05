@@ -8,21 +8,24 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { AppModule } from './app/app.module';
+import { env } from './app/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.KAFKA,
-    options: {
-      client: {
-        clientId: 'order',
-        brokers: ['localhost:9094'],
-      },
-      consumer: {
-        groupId: 'order-consumer',
+  app.connectMicroservice<MicroserviceOptions>(
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: [env.RABBIT_MQ],
+        queue: 'order_queue',
+        noAck: false,
+        queueOptions: {
+          durable: true,
+        },
       },
     },
-  });
+    { inheritAppConfig: true }
+  );
   const logger = app.get(Logger);
   app.useLogger(logger);
   const globalPrefix = 'api';

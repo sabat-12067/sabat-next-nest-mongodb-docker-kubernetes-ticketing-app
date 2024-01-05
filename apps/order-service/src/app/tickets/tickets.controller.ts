@@ -1,12 +1,11 @@
 import { Controller, Logger } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Public, Topics } from '@ticketing-app/nest-common';
+import { Topics } from '@ticketing-app/nest-common';
 import { CreateRequestContext, MikroORM } from '@mikro-orm/core';
 
-@Public()
 @Controller()
 export class TicketsController {
   private readonly logger = new Logger(TicketsController.name);
@@ -17,17 +16,33 @@ export class TicketsController {
 
   @EventPattern(Topics.TicketCreated)
   @CreateRequestContext()
-  create(@Payload() createTicketDto: CreateTicketDto) {
+  async create(
+    @Payload() createTicketDto: CreateTicketDto,
+    @Ctx() context: RmqContext
+  ) {
     this.logger.log(createTicketDto);
 
-    return this.ticketsService.create(createTicketDto);
+    await this.ticketsService.create(createTicketDto);
+
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    channel.ack(originalMsg);
   }
 
   @EventPattern(Topics.TicketUpdated)
   @CreateRequestContext()
-  update(@Payload() updateTicketDto: UpdateTicketDto) {
+  async update(
+    @Payload() updateTicketDto: UpdateTicketDto,
+    @Ctx() context: RmqContext
+  ) {
     this.logger.log(updateTicketDto);
 
-    return this.ticketsService.update(updateTicketDto.id, updateTicketDto);
+    await this.ticketsService.update(updateTicketDto.id, updateTicketDto);
+
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    channel.ack(originalMsg);
   }
 }

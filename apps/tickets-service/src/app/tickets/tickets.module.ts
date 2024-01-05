@@ -5,6 +5,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Ticket } from './entities/ticket.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { env } from '../config';
 
 @Module({
   imports: [
@@ -12,15 +13,12 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ClientsModule.register([
       {
         name: 'ORDER_SERVICE',
-        transport: Transport.KAFKA,
+        transport: Transport.RMQ,
         options: {
-          client: {
-            clientId: 'order',
-            brokers: ['localhost:9094'],
-          },
-          consumer: {
-            groupId: 'order-consumer',
-            allowAutoTopicCreation: true,
+          urls: [env.RABBIT_MQ],
+          queue: 'order_queue',
+          queueOptions: {
+            durable: true,
           },
         },
       },

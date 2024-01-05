@@ -31,30 +31,31 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: KEYCLOAK_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: redis-config
-                  key: redis-host
-            - name: KEYCLOAK_SECRET
-              value: '6379'
-            - name: KEYCLOAK_ISSUER
-              valueFrom:
-                configMapKeyRef:
-                  name: mongo-config
-                  key: mongo-host
+            - name: FUSIONAUTH_URL
+              value: https://auth.ticketing.dev
+            - name: FUSIONAUTH_TENANT_ID
+              value: 1db3af22-fda2-4ff2-80ba-158d2986ff82
+            - name: FUSIONAUTH_ISSUER
+              value: https://auth.ticketing.dev
+            - name: FUSIONAUTH_CLIENT_ID
+              value: 84a68293-6e54-408e-91cd-6bb2696528d3
+            - name: FUSIONAUTH_SECRET
+              value: g-cvASwS71cqs23II5K3LQBkFb0mM1dmom8ULp8OFTU
+            - name: NEXTAUTH_SECRET
+              value: random_value_please_change
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: '0'
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: web-client
 spec:
-  #   type: NodePort
+  type: ClusterIP
   selector:
     app: web-client
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-      #   nodePort: 30001
       name: http

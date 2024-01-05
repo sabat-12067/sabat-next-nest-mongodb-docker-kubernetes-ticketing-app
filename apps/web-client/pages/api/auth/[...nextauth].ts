@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import FusionAuthProvider from 'next-auth/providers/fusionauth';
 import type { AuthOptions } from 'next-auth';
 import { env } from '../../../utils';
+import type { JWT } from 'next-auth/jwt';
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -20,9 +21,16 @@ export const authOptions = {
       return session;
     },
     async jwt({ token, account }) {
-      if (account && account.expires_at) {
+      let result: JWT;
+
+      if (
+        account &&
+        account.expires_at &&
+        account.access_token &&
+        account.refresh_token
+      ) {
         // Save the access token and refresh token in the JWT on the initial login
-        return {
+        result = {
           access_token: account.access_token,
           expires_at: account.expires_at,
           refresh_token: account.refresh_token,
@@ -51,7 +59,7 @@ export const authOptions = {
           if (!response.ok) throw tokens;
           console.debug('Token refreshed', tokens);
 
-          return {
+          result = {
             ...token, // Keep the previous token properties
             access_token: tokens.access_token,
             expires_at: Math.floor(Date.now() / 1000 + tokens.expires_in),
@@ -65,6 +73,8 @@ export const authOptions = {
           return { ...token, error: 'RefreshAccessTokenError' as const };
         }
       }
+
+      return result;
     },
   },
   debug: true,

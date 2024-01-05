@@ -15,6 +15,7 @@ import {
   AuthModule,
   HealthModule,
   NestPinoModule,
+  TimeoutInterceptor,
 } from '@ticketing-app/nest-common';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -47,8 +48,6 @@ import { TicketsModule } from './tickets/tickets.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,
-    JwtService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
@@ -57,6 +56,12 @@ import { TicketsModule } from './tickets/tickets.module';
       provide: APP_INTERCEPTOR,
       useClass: LoggerErrorInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
+    AppService,
+    JwtService,
   ],
 })
 export class AppModule implements NestModule {

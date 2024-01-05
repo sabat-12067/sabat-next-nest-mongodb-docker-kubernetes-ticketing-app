@@ -23,7 +23,10 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
     if (isPublic) {
-      // 💡 See this condition
+      return true;
+    }
+
+    if (context.getType() === 'rpc') {
       return true;
     }
 
