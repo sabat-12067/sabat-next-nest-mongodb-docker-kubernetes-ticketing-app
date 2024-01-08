@@ -31,17 +31,33 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: redis-config
-                  key: redis-host
-            - name: REDIS_PORT
-              value: '6379'
+            - name: NODE_ENV
+              value: staging
+            - name: ORIGIN
+              value: https://ticketing.dev
+            - name: OPENID_JWK_URL
+              value: http://my-fusionauth.fusionauth.svc.cluster.local:9011/.well-known/jwks.json
+            - name: FUSIONAUTH_TENANT_ID
+              value: 1db3af22-fda2-4ff2-80ba-158d2986ff82
+            - name: OPENID_ISSUER
+              value: http://my-fusionauth.fusionauth.svc.cluster.local:9011
+            - name: OPENID_CLIENT_ID
+              value: 84a68293-6e54-408e-91cd-6bb2696528d3
+            - name: OPENID_CLIENT_SECRET
+              value: g-cvASwS71cqs23II5K3LQBkFb0mM1dmom8ULp8OFTU
+            # - name: REDIS_HOST
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: redis-config
+            #       key: redis-host
+            # - name: REDIS_PORT
+            #   value: '6379'
             - name: MONGO_HOST
-              value: mongo-service
+              value: my-mongo-mongodb.mongodb.svc.cluster.local
             - name: MONGO_URI
-              value: mongodb://mongoadmin:secret@$(MONGO_HOST):27017
+              value: mongodb://root:3AuYvpoOsM@$(MONGO_HOST):27017
+            - name: RABBIT_MQ_URI
+              value: amqp://user:password123@my-rabbitmq.rabbitmq.svc.cluster.local:5672
 ---
 apiVersion: v1
 kind: Service

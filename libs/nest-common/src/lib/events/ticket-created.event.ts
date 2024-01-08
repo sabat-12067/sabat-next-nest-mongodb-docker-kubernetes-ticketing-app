@@ -28,10 +28,6 @@ export class TicketCreatedEventDto implements ITicketCreatedEvent {
   @IsString()
   @IsNotEmpty()
   userId: string;
-
-  constructor(init: Partial<TicketCreatedEventDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class TicketCreatedEvent {

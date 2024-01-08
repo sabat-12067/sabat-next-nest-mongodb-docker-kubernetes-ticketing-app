@@ -83,8 +83,8 @@ export class OrdersService {
         userId: userAuthId,
         expiresAt: order.expiresAt.toISOString(),
         ticket: {
-          id: order.ticket.id,
-          price: order.ticket.price,
+          id: ticket.id,
+          price: ticket.price,
         },
       });
       this.logger.log(order);

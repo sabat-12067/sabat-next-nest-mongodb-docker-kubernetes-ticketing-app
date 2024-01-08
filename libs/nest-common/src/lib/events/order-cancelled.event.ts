@@ -1,6 +1,5 @@
+import { Type } from 'class-transformer';
 import {
-  IsDefined,
-  IsInstance,
   IsNotEmpty,
   IsObject,
   IsOptional,
@@ -20,10 +19,6 @@ class TicketDto implements Readonly<TicketDto> {
   @IsString()
   @IsNotEmpty()
   id: string;
-
-  constructor(init: Partial<TicketDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class OrderCancelledEventDto implements IOrderCancelledEvent {
@@ -35,14 +30,10 @@ export class OrderCancelledEventDto implements IOrderCancelledEvent {
   @Min(0)
   version?: number;
 
-  @IsDefined()
   @IsObject()
-  @IsInstance(TicketDto)
+  @IsNotEmpty()
+  @Type(() => TicketDto)
   ticket: TicketDto;
-
-  constructor(init: Partial<OrderCancelledEventDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class OrderCancelledEvent {

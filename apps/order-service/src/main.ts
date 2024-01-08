@@ -16,7 +16,7 @@ async function bootstrap() {
     {
       transport: Transport.RMQ,
       options: {
-        urls: [env.RABBIT_MQ],
+        urls: [env.RABBIT_MQ_URI],
         queue: 'order_queue',
         noAck: false,
         queueOptions: {

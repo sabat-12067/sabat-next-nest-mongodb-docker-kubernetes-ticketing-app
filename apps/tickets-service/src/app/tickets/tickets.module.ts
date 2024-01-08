@@ -6,16 +6,17 @@ import { Ticket } from './entities/ticket.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { env } from '../config';
+import constants from './constants';
 
 @Module({
   imports: [
     MikroOrmModule.forFeature({ entities: [Ticket] }),
     ClientsModule.register([
       {
-        name: 'ORDER_SERVICE',
+        name: constants.ORDER_SERVICE,
         transport: Transport.RMQ,
         options: {
-          urls: [env.RABBIT_MQ],
+          urls: [env.RABBIT_MQ_URI],
           queue: 'order_queue',
           queueOptions: {
             durable: true,

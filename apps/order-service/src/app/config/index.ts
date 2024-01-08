@@ -14,9 +14,8 @@ const ENVS = {
   OPENID_CLIENT_SECRET: str(),
   OPENID_JWK_URL: url(),
   FUSIONAUTH_TENANT_ID: str(),
-  FUSIONAUTH_URL: url(),
   HOSTNAME: str({ devDefault: 'order-service' }),
-  RABBIT_MQ: url(),
+  RABBIT_MQ_URI: url(),
 };
 
 export const env = cleanEnv(process.env, ENVS);

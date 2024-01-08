@@ -17,7 +17,7 @@ import { env } from '../config';
         name: 'TICKETS_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [env.RABBIT_MQ],
+          urls: [env.RABBIT_MQ_URI],
           queue: 'tickets_queue',
           queueOptions: {
             durable: true,

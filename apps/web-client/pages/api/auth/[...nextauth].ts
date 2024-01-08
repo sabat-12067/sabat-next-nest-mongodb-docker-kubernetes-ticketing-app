@@ -15,6 +15,12 @@ export const authOptions = {
       tenantId: env.FUSIONAUTH_TENANT_ID,
     }),
   ],
+  events: {
+    signOut(message) {
+      console.log(message);
+    },
+  },
+
   callbacks: {
     async session({ session, token }) {
       session.error = token.error;

@@ -15,7 +15,7 @@ export class TicketRepository extends EntityRepository<Ticket> {
         ],
       },
     });
-    console.log(existingOrder);
+
     return !!existingOrder;
   }
 }

@@ -43,6 +43,8 @@ spec:
               value: g-cvASwS71cqs23II5K3LQBkFb0mM1dmom8ULp8OFTU
             - name: NEXTAUTH_SECRET
               value: random_value_please_change
+            - name: NEXTAUTH_URL
+              value: https://ticketing.dev
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: '0'
 ---

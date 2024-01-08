@@ -10,6 +10,7 @@ import {
   ITicketCreatedEvent,
   ITicketUpdatedEvent,
 } from '@ticketing-app/nest-common';
+import constants from './constants';
 
 @Injectable()
 export class TicketsService {
@@ -18,7 +19,7 @@ export class TicketsService {
   constructor(
     private readonly ticketRepository: TicketRepository,
     private readonly em: EntityManager,
-    @Inject('ORDER_SERVICE')
+    @Inject(constants.ORDER_SERVICE)
     private readonly orderClient: ClientRMQ
   ) {}
 
@@ -35,6 +36,7 @@ export class TicketsService {
       userId: ticket.userId,
       version: 1,
     });
+    this.logger.log(ticket);
     return ticket;
   }
 

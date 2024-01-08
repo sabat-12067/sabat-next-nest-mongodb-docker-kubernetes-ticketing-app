@@ -1,9 +1,7 @@
 import { OrderStatus } from './index';
 import {
   IsDateString,
-  IsDefined,
   IsEnum,
-  IsInstance,
   IsInt,
   IsNotEmpty,
   IsObject,
@@ -11,6 +9,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export interface IOrderCreatedEvent {
   id: string;
@@ -24,22 +23,17 @@ export interface IOrderCreatedEvent {
   };
 }
 
-class TicketDto implements Readonly<TicketDto> {
+class TicketDto {
   @IsString()
   @IsNotEmpty()
   id: string;
 
-  @IsDefined()
+  @IsNotEmpty()
   @Min(0)
   price: number;
-
-  constructor(init: Partial<TicketDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class OrderCreatedEventDto implements IOrderCreatedEvent {
-  @IsDefined()
   @IsString()
   @IsNotEmpty()
   id: string;
@@ -48,27 +42,21 @@ export class OrderCreatedEventDto implements IOrderCreatedEvent {
   @IsInt()
   version?: number;
 
-  @IsDefined()
   @IsEnum(OrderStatus)
   status: OrderStatus;
 
-  @IsDefined()
   @IsString()
   @IsNotEmpty()
   userId: string;
 
-  @IsDefined()
+  @IsNotEmpty()
   @IsDateString()
   expiresAt: string;
 
-  @IsDefined()
   @IsObject()
-  @IsInstance(TicketDto)
+  @IsNotEmpty()
+  @Type(() => TicketDto)
   ticket: TicketDto;
-
-  constructor(init: Partial<OrderCreatedEventDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class OrderCreatedEvent {

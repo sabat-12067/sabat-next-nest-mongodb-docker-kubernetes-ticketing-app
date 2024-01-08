@@ -33,10 +33,6 @@ export class TicketUpdatedEventDto implements ITicketUpdatedEvent {
   @IsString()
   @IsNotEmpty()
   orderId?: string;
-
-  constructor(init: Partial<TicketUpdatedEventDto>) {
-    Object.assign(this, init);
-  }
 }
 
 export class TicketUpdatedEvent {
