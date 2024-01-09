@@ -20,7 +20,7 @@ export class TicketsController {
     @Payload() createTicketDto: CreateTicketDto,
     @Ctx() context: RmqContext
   ) {
-    this.logger.log(createTicketDto);
+    this.logger.log(createTicketDto, `Received event: ${Topics.TicketCreated}`);
 
     await this.ticketsService.create(createTicketDto);
 
@@ -36,7 +36,7 @@ export class TicketsController {
     @Payload() updateTicketDto: UpdateTicketDto,
     @Ctx() context: RmqContext
   ) {
-    this.logger.log(updateTicketDto);
+    this.logger.log(updateTicketDto, `Received event: ${Topics.TicketUpdated}`);
 
     await this.ticketsService.update(updateTicketDto.id, updateTicketDto);
 

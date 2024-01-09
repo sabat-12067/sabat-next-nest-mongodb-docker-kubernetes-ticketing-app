@@ -6,29 +6,18 @@ import {
   Patch,
   Param,
   Delete,
-  Logger,
   UseGuards,
-  OnModuleInit,
-  Inject,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import {
-  AuthGuard,
-  LoggedInUser,
-  OrderCancelledEvent,
-} from '@ticketing-app/nest-common';
+import { AuthGuard, LoggedInUser } from '@ticketing-app/nest-common';
 import { UserinfoResponse } from 'openid-client';
 
 @UseGuards(AuthGuard)
 @Controller('orders')
-export class OrdersController implements OnModuleInit {
+export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
-
-  onModuleInit() {
-    // this.ticketClient.subscribeToResponseOf()
-  }
 
   @Post()
   async create(

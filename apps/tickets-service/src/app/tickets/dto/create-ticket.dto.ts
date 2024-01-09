@@ -1,7 +1,8 @@
-import { IsNotEmpty, Min } from 'class-validator';
+import { IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class CreateTicketDto {
   @IsNotEmpty()
+  @IsString()
   title: string;
 
   @IsNotEmpty()

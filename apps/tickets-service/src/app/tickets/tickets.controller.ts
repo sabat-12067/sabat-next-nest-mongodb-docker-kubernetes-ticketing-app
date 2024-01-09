@@ -67,7 +67,8 @@ export class TicketsController {
   @EventPattern(Topics.OrderCreated)
   @CreateRequestContext()
   async handleOrderCreated(@Payload() payload: OrderCreatedEventDto) {
-    this.logger.log(payload, 'handleOrderCreated');
+    this.logger.log(payload, `Received event: ${Topics.OrderCreated}`);
+
     return await this.ticketsService.update(payload.ticket.id, {
       orderId: payload.id,
     });
@@ -76,7 +77,8 @@ export class TicketsController {
   @EventPattern(Topics.OrderCancelled)
   @CreateRequestContext()
   async handleOrderCancelled(@Payload() payload: OrderCancelledEventDto) {
-    this.logger.log(payload);
+    this.logger.log(payload, `Received event: ${Topics.OrderCancelled}`);
+
     return this.ticketsService.update(payload.ticket.id, {
       orderId: undefined,
     });

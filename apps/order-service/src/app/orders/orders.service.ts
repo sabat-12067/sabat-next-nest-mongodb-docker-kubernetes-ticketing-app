@@ -20,8 +20,11 @@ import {
   IOrderCancelledEvent,
 } from '@ticketing-app/nest-common';
 import { ClientRMQ } from '@nestjs/microservices';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import constants from './constants';
 
-const EXPIRATION_WINDOW_SECONDS = 1 * 60;
+const EXPIRATION_WINDOW_SECONDS = 3 * 60;
 
 @Injectable()
 export class OrdersService {
@@ -31,8 +34,9 @@ export class OrdersService {
     private readonly ticketRepository: TicketRepository,
     private readonly userRepository: UserRepository,
     private readonly em: EntityManager,
-    @Inject('TICKETS_SERVICE')
-    private readonly ticketClient: ClientRMQ
+    @Inject(constants.TICKETS_SERVICE)
+    private readonly ticketClient: ClientRMQ,
+    @InjectQueue(constants.EXPIRE_ORDER) private expireOrderQueue: Queue
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userAuthId: string) {
@@ -71,11 +75,11 @@ export class OrdersService {
     if (errors.length > 0) {
       throw new BadRequestException({
         message: 'Input data validation failed',
-        errors: { username: 'Userinput is not valid.' },
       });
     } else {
       await this.em.persistAndFlush(order);
 
+      this.logger.log(`Publishing event: ${Topics.OrderCreated}`);
       this.ticketClient.emit<void, IOrderCreatedEvent>(Topics.OrderCreated, {
         id: order.id,
         // version: order.version,
@@ -87,7 +91,18 @@ export class OrdersService {
           price: ticket.price,
         },
       });
-      this.logger.log(order);
+
+      this.logger.log(order, 'Order created');
+      const delay = new Date(order.expiresAt).getTime() - new Date().getTime();
+      this.logger.log(`Waiting time for the job in ${delay} ms`);
+
+      await this.expireOrderQueue.add(
+        'expireOrder',
+        {
+          orderId: order.id,
+        },
+        { delay: delay }
+      );
 
       delete order['user'];
       return order;
@@ -121,18 +136,13 @@ export class OrdersService {
     wrap(order).assign(updateOrderDto);
     await this.em.flush();
 
-    if (order.status === OrderStatus.CANCELLED) {
-      this.ticketClient.emit<void, IOrderCancelledEvent>(
-        Topics.OrderCancelled,
-        {
-          id: order.id,
-          ticket: {
-            id: order.ticket.id,
-          },
-        }
-      );
+    if (
+      order.status === OrderStatus.CANCELLED ||
+      order.status === OrderStatus.EXPIRED
+    ) {
+      this.emitCancelEvent(order);
     }
-    this.logger.log(order);
+    this.logger.log(order, 'order updated');
 
     return order;
   }
@@ -144,13 +154,20 @@ export class OrdersService {
     }
     await this.orderRepository.nativeDelete({ id });
 
+    this.emitCancelEvent(order);
+
+    this.logger.log(order, 'order deleted');
+    return order;
+  }
+
+  async emitCancelEvent(order: Order) {
+    this.logger.log(`Publishing event: ${Topics.OrderCancelled}`);
+
     this.ticketClient.emit<void, IOrderCancelledEvent>(Topics.OrderCancelled, {
       id: order.id,
       ticket: {
         id: order.ticket.id,
       },
     });
-    this.logger.log(order);
-    return order;
   }
 }

@@ -19,7 +19,6 @@ import { User } from './user.entity';
 import { MongoBaseEntity, OrderStatus } from '@ticketing-app/nest-common';
 
 @Entity({ repository: () => OrderRepository, tableName: 'orders' })
-@Unique({ properties: ['ticket', 'user'] })
 export class Order extends MongoBaseEntity {
   [EntityRepositoryType]?: OrderRepository;
 
@@ -31,6 +30,7 @@ export class Order extends MongoBaseEntity {
   expiresAt: Date;
 
   @ManyToOne(() => Ticket, { ref: true, fieldName: 'ticketId' })
+  @Unique()
   ticket: Ref<Ticket>;
 
   @ManyToOne(() => User, { ref: true, fieldName: 'userId' })

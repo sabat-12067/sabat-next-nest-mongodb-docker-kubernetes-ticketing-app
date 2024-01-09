@@ -7,6 +7,7 @@ const ENVS = {
   ORIGIN: url(),
   NODE_ENV: str({
     choices: ['development', 'test', 'production', 'staging', 'qa'],
+    devDefault: 'development',
   }),
   PORT: port({ devDefault: 6000 }),
   OPENID_ISSUER: url(),
@@ -16,6 +17,8 @@ const ENVS = {
   FUSIONAUTH_TENANT_ID: str(),
   HOSTNAME: str({ devDefault: 'order-service' }),
   RABBIT_MQ_URI: url(),
+  REDIS_HOST: str({ devDefault: 'localhost' }),
+  REDIS_PORT: port({ default: 6379 }),
 };
 
 export const env = cleanEnv(process.env, ENVS);

@@ -11,7 +11,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
 import {
-  AuthGuard,
   AuthModule,
   HealthModule,
   NestPinoModule,
@@ -19,6 +18,7 @@ import {
 } from '@ticketing-app/nest-common';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { BullModule } from '@nestjs/bull';
 import { ENVALID, EnvalidModule } from 'nestjs-envalid';
 import { Config, validators } from './config';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
@@ -39,6 +39,15 @@ import { TicketsModule } from './tickets/tickets.module';
           clientUrl: env.MONGO_URI,
         };
       },
+    }),
+    BullModule.forRootAsync({
+      inject: [ENVALID],
+      useFactory: async (env: Config) => ({
+        redis: {
+          host: env.REDIS_HOST,
+          port: env.REDIS_PORT,
+        },
+      }),
     }),
     OrdersModule,
     TicketsModule,

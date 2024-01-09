@@ -8,13 +8,16 @@ import { JwtService } from '@nestjs/jwt';
 import { Ticket } from '../tickets/entities/ticket.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { env } from '../config';
+import { BullModule } from '@nestjs/bull';
+import constants from './constants';
+import { OrderProcessor } from './order.processor';
 
 @Module({
   imports: [
     MikroOrmModule.forFeature({ entities: [Order, User, Ticket] }),
     ClientsModule.register([
       {
-        name: 'TICKETS_SERVICE',
+        name: constants.TICKETS_SERVICE,
         transport: Transport.RMQ,
         options: {
           urls: [env.RABBIT_MQ_URI],
@@ -25,8 +28,11 @@ import { env } from '../config';
         },
       },
     ]),
+    BullModule.registerQueue({
+      name: constants.EXPIRE_ORDER,
+    }),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, JwtService],
+  providers: [OrdersService, JwtService, OrderProcessor],
 })
 export class OrdersModule {}

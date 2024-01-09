@@ -22,6 +22,8 @@ export enum OrderStatus {
   // The order has reserved the ticket and the user has
   // provided payment successfully
   COMPLETE = 'complete',
+
+  EXPIRED = 'expired',
 }
 
 export * from './ticket-created.event';
