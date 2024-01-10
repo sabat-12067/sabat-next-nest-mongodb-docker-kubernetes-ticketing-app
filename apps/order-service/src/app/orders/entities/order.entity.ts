@@ -1,21 +1,15 @@
 import {
-  Collection,
   Entity,
   EntityRepositoryType,
-  ManyToMany,
-  OneToMany,
   Property,
   Enum,
   Index,
-  wrap,
   ManyToOne,
   Ref,
   ref,
-  Unique,
 } from '@mikro-orm/core';
 import { Ticket } from '../../tickets/entities/ticket.entity';
 import { OrderRepository } from '../order.repository';
-import { User } from './user.entity';
 import { MongoBaseEntity, OrderStatus } from '@ticketing-app/nest-common';
 
 @Entity({ repository: () => OrderRepository, tableName: 'orders' })
@@ -30,15 +24,16 @@ export class Order extends MongoBaseEntity {
   expiresAt: Date;
 
   @ManyToOne(() => Ticket, { ref: true, fieldName: 'ticketId' })
-  @Unique()
+  @Index()
   ticket: Ref<Ticket>;
 
-  @ManyToOne(() => User, { ref: true, fieldName: 'userId' })
-  user: Ref<User>;
+  @Property()
+  @Index()
+  userId: string;
 
-  constructor({ user, status, ticket, expiresAt }: Props) {
+  constructor({ userId, status, ticket, expiresAt }: Props) {
     super();
-    this.user = ref(user);
+    this.userId = userId;
     this.status = status;
     this.ticket = ref(ticket);
     this.expiresAt = expiresAt;
@@ -46,7 +41,7 @@ export class Order extends MongoBaseEntity {
 }
 
 interface Props {
-  user: User;
+  userId: string;
   status: OrderStatus;
   ticket: Ticket;
   expiresAt: Date;

@@ -47,6 +47,9 @@ import { TicketsModule } from './tickets/tickets.module';
           host: env.REDIS_HOST,
           port: env.REDIS_PORT,
         },
+        defaultJobOptions: {
+          removeOnComplete: true,
+        },
       }),
     }),
     OrdersModule,

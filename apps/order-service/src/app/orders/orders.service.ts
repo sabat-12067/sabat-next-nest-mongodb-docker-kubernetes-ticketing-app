@@ -12,7 +12,6 @@ import { OrderRepository } from './order.repository';
 import { TicketRepository } from '../tickets/ticket.repository';
 import { Order } from './entities/order.entity';
 import { validate } from 'class-validator';
-import { UserRepository } from './user.repository';
 import {
   OrderStatus,
   Topics,
@@ -24,7 +23,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import constants from './constants';
 
-const EXPIRATION_WINDOW_SECONDS = 3 * 60;
+const EXPIRATION_WINDOW_SECONDS = 5 * 60;
 
 @Injectable()
 export class OrdersService {
@@ -32,7 +31,6 @@ export class OrdersService {
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly ticketRepository: TicketRepository,
-    private readonly userRepository: UserRepository,
     private readonly em: EntityManager,
     @Inject(constants.TICKETS_SERVICE)
     private readonly ticketClient: ClientRMQ,
@@ -45,7 +43,6 @@ export class OrdersService {
     const ticket = await this.ticketRepository.findOne({
       id: ticketId,
     });
-    const user = await this.userRepository.findOrCreate(userAuthId);
 
     if (!ticket) {
       throw new NotFoundException('Ticket not found');
@@ -65,7 +62,7 @@ export class OrdersService {
     // Build the order and save it to the database
 
     const order = new Order({
-      user: user,
+      userId: userAuthId,
       status: OrderStatus.CREATED,
       ticket,
       expiresAt: expiration,
@@ -101,7 +98,9 @@ export class OrdersService {
         {
           orderId: order.id,
         },
-        { delay: delay }
+        {
+          delay: delay,
+        }
       );
 
       delete order['user'];
@@ -110,13 +109,9 @@ export class OrdersService {
   }
 
   async findAll(authId: string) {
-    const user = await this.userRepository.findOne({ authId });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
     const orders = await this.orderRepository.find(
       {
-        user,
+        userId: authId,
       },
       { populate: ['ticket'] }
     );
@@ -133,12 +128,21 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
+    if (
+      order.status === OrderStatus.EXPIRED ||
+      order.status === OrderStatus.COMPLETE
+    ) {
+      this.logger.log(
+        `Order is in ${order.status} status. Cannot update order ${order.id} to ${updateOrderDto.status}`
+      );
+      return order;
+    }
     wrap(order).assign(updateOrderDto);
     await this.em.flush();
 
     if (
-      order.status === OrderStatus.CANCELLED ||
-      order.status === OrderStatus.EXPIRED
+      updateOrderDto.status === OrderStatus.CANCELLED ||
+      updateOrderDto.status === OrderStatus.EXPIRED
     ) {
       this.emitCancelEvent(order);
     }
@@ -148,7 +152,7 @@ export class OrdersService {
   }
 
   async remove(id: string, userId?: string) {
-    const order = await this.orderRepository.findOne({ id, user: userId });
+    const order = await this.orderRepository.findOne({ id, userId });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
