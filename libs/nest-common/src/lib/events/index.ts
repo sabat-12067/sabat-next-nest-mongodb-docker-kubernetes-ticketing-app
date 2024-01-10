@@ -4,6 +4,7 @@ export enum Topics {
   OrderCreated = 'order_created',
   OrderCancelled = 'order_cancelled',
   ExpirationComplete = 'expiration_complete',
+  PaymentComplete = 'payment_complete',
 }
 
 export enum OrderStatus {
@@ -30,3 +31,4 @@ export * from './ticket-created.event';
 export * from './ticket-updated.event';
 export * from './order-created.event';
 export * from './order-cancelled.event';
+export * from './payment-created.event';

@@ -9,3 +9,4 @@ export * from './lib/events/index';
 export * from './lib/logger/pino.module';
 export * from './lib/interceptors/index';
 export * from './lib/filters/index';
+export * from './lib/constants';

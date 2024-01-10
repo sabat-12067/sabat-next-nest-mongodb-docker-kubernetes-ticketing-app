@@ -1,9 +1,8 @@
 import { Processor, Process, OnQueueActive, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
-import constants from './constants';
 import { Logger } from '@nestjs/common';
 import { CreateRequestContext, MikroORM } from '@mikro-orm/core';
-import { OrderStatus } from '@ticketing-app/nest-common';
+import { OrderStatus, constants } from '@ticketing-app/nest-common';
 import { OrdersService } from './orders.service';
 
 @Processor({

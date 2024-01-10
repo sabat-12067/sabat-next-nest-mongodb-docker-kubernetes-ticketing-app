@@ -1,9 +1,8 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { TicketsService } from './tickets.service';
-import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Topics } from '@ticketing-app/nest-common';
+import { TicketCreatedEventDto, Topics } from '@ticketing-app/nest-common';
 import { CreateRequestContext, MikroORM } from '@mikro-orm/core';
 
 @Controller()
@@ -17,7 +16,7 @@ export class TicketsController {
   @EventPattern(Topics.TicketCreated)
   @CreateRequestContext()
   async create(
-    @Payload() createTicketDto: CreateTicketDto,
+    @Payload() createTicketDto: TicketCreatedEventDto,
     @Ctx() context: RmqContext
   ) {
     this.logger.log(createTicketDto, `Received event: ${Topics.TicketCreated}`);

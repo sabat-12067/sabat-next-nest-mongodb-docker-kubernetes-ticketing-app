@@ -8,7 +8,7 @@ import { Ticket } from '../tickets/entities/ticket.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { env } from '../config';
 import { BullModule } from '@nestjs/bull';
-import constants from './constants';
+import { constants } from '@ticketing-app/nest-common';
 import { OrderProcessor } from './order.processor';
 
 @Module({

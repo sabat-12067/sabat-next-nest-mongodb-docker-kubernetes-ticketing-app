@@ -9,8 +9,8 @@ import {
   Topics,
   ITicketCreatedEvent,
   ITicketUpdatedEvent,
+  constants,
 } from '@ticketing-app/nest-common';
-import constants from './constants';
 
 @Injectable()
 export class TicketsService {

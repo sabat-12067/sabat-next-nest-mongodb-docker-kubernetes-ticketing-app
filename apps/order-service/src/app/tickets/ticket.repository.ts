@@ -5,7 +5,7 @@ import { OrderStatus } from '@ticketing-app/nest-common';
 
 export class TicketRepository extends EntityRepository<Ticket> {
   async isReserved(ticket: Ticket) {
-    const existingOrder = await this._em.findOne(Order, {
+    const existingOrder = await this.em.findOne(Order, {
       ticket,
       status: {
         $in: [

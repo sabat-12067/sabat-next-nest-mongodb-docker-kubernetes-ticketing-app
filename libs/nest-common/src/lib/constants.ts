@@ -1,0 +1,5 @@
+export const constants = Object.freeze({
+  ORDER_SERVICE: 'ORDER_SERVICE',
+  TICKETS_SERVICE: 'TICKETS_SERVICE',
+  EXPIRE_ORDER: 'EXPIRE_ORDER',
+});

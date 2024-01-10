@@ -1,12 +1,13 @@
 import type { Dictionary, EntityManager } from '@mikro-orm/core';
-import { Seeder, Factory, Faker } from '@mikro-orm/seeder';
+import { Seeder, Factory } from '@mikro-orm/seeder';
 import { Ticket } from '../app/tickets/entities/ticket.entity';
 import { Order } from '../app/orders/entities/order.entity';
 import { OrderStatus } from '@ticketing-app/nest-common';
+import { faker } from '@faker-js/faker/locale/en';
 export class TicketFactory extends Factory<Ticket> {
   model = Ticket;
 
-  definition(faker: Faker): Partial<Ticket> {
+  definition(): Partial<Ticket> {
     return {
       price: Number(faker.finance.amount()),
       title: faker.lorem.sentence(),
@@ -17,7 +18,7 @@ export class TicketFactory extends Factory<Ticket> {
 export class OrderFactory extends Factory<Order> {
   model = Order;
 
-  definition(faker: Faker): Partial<Order> {
+  definition(): Partial<Order> {
     const expiration = new Date();
     expiration.setSeconds(expiration.getSeconds() + 60);
     return {

@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
-import { TicketsService } from './tickets.service';
-import { TicketsController } from './tickets.controller';
+import { PaymentService } from './payment.service';
+import { PaymentController } from './payment.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { Ticket } from './entities/ticket.entity';
-import { JwtService } from '@nestjs/jwt';
+import { Payment } from './entities/payment.entity';
+import { Order } from '../order/entities/order.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { env } from '../config';
 import { constants } from '@ticketing-app/nest-common';
+import { env } from '../config';
 
 @Module({
   imports: [
-    MikroOrmModule.forFeature({ entities: [Ticket] }),
+    MikroOrmModule.forFeature({ entities: [Payment, Order] }),
     ClientsModule.register([
       {
         name: constants.ORDER_SERVICE,
         transport: Transport.RMQ,
         options: {
           urls: [env.RABBIT_MQ_URI],
-          queue: 'order_queue',
+          queue: 'orders_queue',
           queueOptions: {
             durable: true,
           },
@@ -25,7 +25,7 @@ import { constants } from '@ticketing-app/nest-common';
       },
     ]),
   ],
-  controllers: [TicketsController],
-  providers: [TicketsService, JwtService],
+  controllers: [PaymentController],
+  providers: [PaymentService],
 })
-export class TicketsModule {}
+export class PaymentModule {}

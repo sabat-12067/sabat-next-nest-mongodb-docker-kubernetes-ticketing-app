@@ -7,16 +7,26 @@ import {
   Param,
   Delete,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { AuthGuard, LoggedInUser } from '@ticketing-app/nest-common';
+import {
+  AuthGuard,
+  LoggedInUser,
+  OrderStatus,
+  PaymentCreatedEventDto,
+  Topics,
+} from '@ticketing-app/nest-common';
 import { UserinfoResponse } from 'openid-client';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { CreateRequestContext } from '@mikro-orm/core';
 
 @UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
+  private readonly logger = new Logger(OrdersController.name);
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
@@ -48,5 +58,21 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove(id);
+  }
+
+  @EventPattern(Topics.PaymentComplete)
+  @CreateRequestContext()
+  async handlePaymentCreated(
+    @Payload() { orderId }: PaymentCreatedEventDto,
+    @Ctx() context: RmqContext
+  ) {
+    this.logger.log({ orderId }, `Received event: ${Topics.PaymentComplete}`);
+
+    await this.ordersService.update(orderId, { status: OrderStatus.COMPLETE });
+
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    channel.ack(originalMsg);
   }
 }

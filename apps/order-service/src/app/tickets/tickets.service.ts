@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketRepository } from './ticket.repository';
 
 import { EntityManager, wrap } from '@mikro-orm/core';
 import { Ticket } from './entities/ticket.entity';
+import { TicketCreatedEventDto } from '@ticketing-app/nest-common';
 
 @Injectable()
 export class TicketsService {
@@ -14,7 +14,7 @@ export class TicketsService {
     private readonly em: EntityManager
   ) {}
 
-  async create(createTicketDto: CreateTicketDto) {
+  async create(createTicketDto: TicketCreatedEventDto) {
     const ticket = new Ticket(createTicketDto);
 
     await this.em.persistAndFlush(ticket);

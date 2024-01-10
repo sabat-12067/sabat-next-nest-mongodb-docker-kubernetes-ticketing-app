@@ -17,11 +17,11 @@ import {
   Topics,
   IOrderCreatedEvent,
   IOrderCancelledEvent,
+  constants,
 } from '@ticketing-app/nest-common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import constants from './constants';
 
 const EXPIRATION_WINDOW_SECONDS = 5 * 60;
 

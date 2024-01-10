@@ -1,24 +1,20 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  ValidationPipe,
-} from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
-import { MikroOrmModule, MikroOrmMiddleware } from '@mikro-orm/nestjs';
+import { MikroOrmMiddleware, MikroOrmModule } from '@mikro-orm/nestjs';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { TicketsModule } from './tickets/tickets.module';
 import {
   AuthModule,
   HealthModule,
   NestPinoModule,
   TimeoutInterceptor,
 } from '@ticketing-app/nest-common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ENVALID, EnvalidModule } from 'nestjs-envalid';
-import { validators, Config } from './config';
+import { Config, validators } from './config';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
+import { PaymentModule } from './payment/payment.module';
+// import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -27,7 +23,7 @@ import { LoggerErrorInterceptor } from 'nestjs-pino';
       inject: [ENVALID],
       useFactory: (env: Config) => {
         return {
-          dbName: 'tickets-db',
+          dbName: 'payments-db',
           driver: MongoDriver,
           autoLoadEntities: true,
           ensureIndexes: true,
@@ -36,16 +32,13 @@ import { LoggerErrorInterceptor } from 'nestjs-pino';
         };
       },
     }),
-    TicketsModule,
     AuthModule,
     HealthModule,
     NestPinoModule,
+    PaymentModule,
+    // OrderModule,
   ],
   providers: [
-    {
-      provide: APP_PIPE,
-      useClass: ValidationPipe,
-    },
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggerErrorInterceptor,
