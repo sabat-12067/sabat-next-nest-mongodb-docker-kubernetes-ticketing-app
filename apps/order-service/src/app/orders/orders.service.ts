@@ -22,6 +22,7 @@ import {
 import { ClientRMQ } from '@nestjs/microservices';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { Ticket } from '../tickets/entities/ticket.entity';
 
 const EXPIRATION_WINDOW_SECONDS = 5 * 60;
 
@@ -34,6 +35,8 @@ export class OrdersService {
     private readonly em: EntityManager,
     @Inject(constants.TICKETS_SERVICE)
     private readonly ticketClient: ClientRMQ,
+    @Inject(constants.PAYMENT_SERVICE)
+    private readonly paymentClient: ClientRMQ,
     @InjectQueue(constants.EXPIRE_ORDER) private expireOrderQueue: Queue
   ) {}
 
@@ -76,18 +79,7 @@ export class OrdersService {
     } else {
       await this.em.persistAndFlush(order);
 
-      this.logger.log(`Publishing event: ${Topics.OrderCreated}`);
-      this.ticketClient.emit<void, IOrderCreatedEvent>(Topics.OrderCreated, {
-        id: order.id,
-        // version: order.version,
-        status: order.status,
-        userId: userAuthId,
-        expiresAt: order.expiresAt.toISOString(),
-        ticket: {
-          id: ticket.id,
-          price: ticket.price,
-        },
-      });
+      this.emitCreatedEvent(order, ticket);
 
       this.logger.log(order, 'Order created');
       const delay = new Date(order.expiresAt).getTime() - new Date().getTime();
@@ -164,10 +156,43 @@ export class OrdersService {
     return order;
   }
 
+  async emitCreatedEvent(order: Order, ticket: Ticket) {
+    this.logger.log(`Publishing event: ${Topics.OrderCreated}`);
+
+    this.ticketClient.emit<void, IOrderCreatedEvent>(Topics.OrderCreated, {
+      id: order.id,
+      status: order.status,
+      userId: order.userId,
+      expiresAt: order.expiresAt.toISOString(),
+      ticket: {
+        id: ticket.id,
+        price: ticket.price,
+      },
+    });
+
+    this.paymentClient.emit<void, IOrderCreatedEvent>(Topics.OrderCreated, {
+      id: order.id,
+      status: order.status,
+      userId: order.userId,
+      expiresAt: order.expiresAt.toISOString(),
+      ticket: {
+        id: ticket.id,
+        price: ticket.price,
+      },
+    });
+  }
+
   async emitCancelEvent(order: Order) {
     this.logger.log(`Publishing event: ${Topics.OrderCancelled}`);
 
     this.ticketClient.emit<void, IOrderCancelledEvent>(Topics.OrderCancelled, {
+      id: order.id,
+      ticket: {
+        id: order.ticket.id,
+      },
+    });
+
+    this.paymentClient.emit<void, IOrderCancelledEvent>(Topics.OrderCancelled, {
       id: order.id,
       ticket: {
         id: order.ticket.id,

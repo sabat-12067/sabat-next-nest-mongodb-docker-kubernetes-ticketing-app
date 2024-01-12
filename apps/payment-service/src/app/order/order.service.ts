@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderServiceDto } from './dto/update-order.dto';
 import { OrderRepository } from './order.repository';
 import { EntityManager, wrap } from '@mikro-orm/core';
 import { Order } from './entities/order.entity';
@@ -16,6 +16,11 @@ export class OrderService {
 
   async create(createOrderDto: CreateOrderDto) {
     const { price, status, userId, id } = createOrderDto;
+    const existingOrder = await this.orderRepository.findOne({ id });
+    if (existingOrder) {
+      this.logger.warn(`Order ${id} already exists`);
+      return existingOrder;
+    }
     const order = new Order({
       id,
       price,
@@ -36,7 +41,7 @@ export class OrderService {
     return this.orderRepository.findOne({ id });
   }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderServiceDto) {
     const order = await this.orderRepository.findOne({ id });
     if (!order) {
       throw new RpcException(`Order ${id} is not found`);

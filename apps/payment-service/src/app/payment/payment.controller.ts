@@ -1,11 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { LoggedInUser } from '@ticketing-app/nest-common';
+import { AuthGuard, LoggedInUser } from '@ticketing-app/nest-common';
 import { UserinfoResponse } from 'openid-client';
 
-@Controller('payment')
+@UseGuards(AuthGuard)
+@Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 

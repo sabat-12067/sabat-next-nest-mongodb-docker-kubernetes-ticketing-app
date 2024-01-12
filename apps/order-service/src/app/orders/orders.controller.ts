@@ -21,13 +21,16 @@ import {
 } from '@ticketing-app/nest-common';
 import { UserinfoResponse } from 'openid-client';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
-import { CreateRequestContext } from '@mikro-orm/core';
+import { CreateRequestContext, MikroORM } from '@mikro-orm/core';
 
 @UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
   private readonly logger = new Logger(OrdersController.name);
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly orm: MikroORM
+  ) {}
 
   @Post()
   async create(

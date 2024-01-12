@@ -14,7 +14,7 @@ import { ENVALID, EnvalidModule } from 'nestjs-envalid';
 import { Config, validators } from './config';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
 import { PaymentModule } from './payment/payment.module';
-// import { OrderModule } from './order/order.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -36,7 +36,7 @@ import { PaymentModule } from './payment/payment.module';
     HealthModule,
     NestPinoModule,
     PaymentModule,
-    // OrderModule,
+    OrderModule,
   ],
   providers: [
     {

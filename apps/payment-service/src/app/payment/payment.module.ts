@@ -7,6 +7,7 @@ import { Order } from '../order/entities/order.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { constants } from '@ticketing-app/nest-common';
 import { env } from '../config';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { env } from '../config';
         transport: Transport.RMQ,
         options: {
           urls: [env.RABBIT_MQ_URI],
-          queue: 'orders_queue',
+          queue: constants.queues.orders_queue,
           queueOptions: {
             durable: true,
           },
@@ -26,6 +27,6 @@ import { env } from '../config';
     ]),
   ],
   controllers: [PaymentController],
-  providers: [PaymentService],
+  providers: [PaymentService, JwtService],
 })
 export class PaymentModule {}

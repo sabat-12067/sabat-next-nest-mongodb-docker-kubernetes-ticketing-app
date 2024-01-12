@@ -9,6 +9,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { env } from './app/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { constants } from '@ticketing-app/nest-common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -17,7 +18,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [env.RABBIT_MQ_URI],
-        queue: 'tickets_queue',
+        queue: constants.queues.tickets_queue,
 
         queueOptions: {
           durable: true,

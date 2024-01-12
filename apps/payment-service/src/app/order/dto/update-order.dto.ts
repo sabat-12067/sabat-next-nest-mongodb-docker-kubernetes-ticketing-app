@@ -7,3 +7,5 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsString()
   id: string;
 }
+
+export class UpdateOrderServiceDto extends PartialType(CreateOrderDto) {}

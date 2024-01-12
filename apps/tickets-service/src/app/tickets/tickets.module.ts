@@ -17,7 +17,7 @@ import { constants } from '@ticketing-app/nest-common';
         transport: Transport.RMQ,
         options: {
           urls: [env.RABBIT_MQ_URI],
-          queue: 'order_queue',
+          queue: constants.queues.orders_queue,
           queueOptions: {
             durable: true,
           },

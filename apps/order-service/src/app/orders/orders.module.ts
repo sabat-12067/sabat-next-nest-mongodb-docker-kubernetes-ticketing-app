@@ -20,7 +20,20 @@ import { OrderProcessor } from './order.processor';
         transport: Transport.RMQ,
         options: {
           urls: [env.RABBIT_MQ_URI],
-          queue: 'tickets_queue',
+          queue: constants.queues.tickets_queue,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+    ]),
+    ClientsModule.register([
+      {
+        name: constants.PAYMENT_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: [env.RABBIT_MQ_URI],
+          queue: constants.queues.payments_queue,
           queueOptions: {
             durable: true,
           },
