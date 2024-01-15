@@ -1,43 +1,80 @@
-import { useState } from 'react';
+import ky from 'ky';
+import type { HTTPError } from 'ky';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+
+const api = ky.extend({});
 
 interface FetchResponse<T> {
   data: T | null;
   loading: boolean;
-  error: Error | null;
-  refetch: () => void;
+  errors: Array<string> | null;
+  refetch: (props?: object) => void;
 }
 
-const useRequest = <T>(
-  url: string | URL,
-  execute = false
-): FetchResponse<T> => {
+interface Props {
+  path: string | URL;
+  execute?: boolean;
+  method: string;
+  body?: object | null;
+  onSuccess?: (param: any) => Promise<boolean>;
+}
+
+const useRequest = <T>({
+  path,
+  execute = false,
+  method = 'get',
+  body,
+  onSuccess,
+}: Props): FetchResponse<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [errors, setError] = useState<Array<string> | null>(null);
+  const { data: session } = useSession();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data: T = await response.json();
-      setData(data);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error);
-      } else {
-        setError(new Error('An unknown error occurred'));
+  const fetchData = useCallback(
+    async (props = {}) => {
+      try {
+        setLoading(true);
+        let json = { ...body, ...props };
+        if (method === 'get') {
+          json = undefined;
+        }
+        const response: T = await api(`https://ticketing.dev/api${path}`, {
+          method,
+          headers: {
+            authorization: `Bearer ${session?.access_token}`,
+          },
+          json,
+        }).json();
+
+        setData(response);
+        if (onSuccess) {
+          onSuccess(response);
+        }
+      } catch (error: any) {
+        console.error(error);
+
+        if (error?.response) {
+          const jsonError = await error.response.json();
+          setError([jsonError.message].flat());
+        } else {
+          setError([error.message]);
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
+    },
+    [body, method, onSuccess, session?.access_token, path]
+  );
+
+  useEffect(() => {
+    if (execute) {
+      fetchData().catch(console.error);
     }
-  };
+  }, [execute, fetchData]);
 
-  if (execute) {
-    fetchData();
-  }
-
-  return { data, loading, error, refetch: fetchData };
+  return { data, loading, errors, refetch: fetchData };
 };
 
 export default useRequest;

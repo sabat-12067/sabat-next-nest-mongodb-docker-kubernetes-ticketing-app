@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-service-deployment
+  name: payment-service-deployment
   labels:
-    app: order-service
+    app: payment-service
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-service
+      app: payment-service
       version: v1
   template:
     metadata:
       labels:
-        app: order-service
+        app: payment-service
         version: v1
     spec:
       containers:
-        - name: order-service
-          image: mrtousif/order-service:main
+        - name: payment-service
+          image: mrtousif/payment-service:main
           imagePullPolicy: 'IfNotPresent'
           resources:
             requests:
@@ -45,13 +45,13 @@ spec:
               value: 84a68293-6e54-408e-91cd-6bb2696528d3
             - name: OPENID_CLIENT_SECRET
               value: g-cvASwS71cqs23II5K3LQBkFb0mM1dmom8ULp8OFTU
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: redis-config
-                  key: redis-host
-            - name: REDIS_PORT
-              value: '6379'
+            # - name: REDIS_HOST
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: redis-config
+            #       key: redis-host
+            # - name: REDIS_PORT
+            #   value: '6379'
             - name: MONGO_HOST
               value: my-mongo-mongodb.mongodb.svc.cluster.local
             - name: MONGO_URI
@@ -62,11 +62,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: order-service
+  name: payment-service
 spec:
   #   type: NodePort
   selector:
-    app: order-service
+    app: payment-service
   ports:
     - protocol: TCP
       port: 3000

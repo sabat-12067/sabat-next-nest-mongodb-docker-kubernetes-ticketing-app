@@ -1,71 +1,59 @@
 import {
-  HoverCard,
   Group,
-  Button,
-  UnstyledButton,
-  Text,
-  SimpleGrid,
-  ThemeIcon,
-  Anchor,
   Divider,
   Center,
   Box,
   Burger,
   Drawer,
-  Collapse,
   ScrollArea,
   rem,
-  useMantineTheme,
 } from '@mantine/core';
 
 import { useDisclosure } from '@mantine/hooks';
 import classes from './HeaderMenu.module.css';
 import LoginButton from '../LoginButton/LoginButton';
+import Link from 'next/link';
+
+import { signOut, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export function HeaderMenu() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
+
+  const { data: session, update } = useSession();
+  useEffect(() => {
+    if (session?.error === 'RefreshAccessTokenError') {
+      signOut();
+    }
+  }, [session]);
+
+  // Listen for when the page is visible, if the user switches tabs
+  // and makes our tab visible again, re-fetch the session
+  useEffect(() => {
+    const visibilityHandler = () =>
+      document.visibilityState === 'visible' && update();
+
+    window.addEventListener('visibilitychange', visibilityHandler, false);
+    return () =>
+      window.removeEventListener('visibilitychange', visibilityHandler, false);
+  }, [update]);
 
   return (
     <Box pb={120}>
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
           <Group h="100%" gap={0} visibleFrom="sm">
-            <a href="#" className={classes.link}>
+            <Link href="/" className={classes.link}>
               Home
-            </a>
-            <HoverCard
-              width={600}
-              position="bottom"
-              radius="md"
-              shadow="md"
-              withinPortal
-            >
-              <HoverCard.Dropdown style={{ overflow: 'hidden' }}>
-                <Group justify="space-between" px="md">
-                  <Text fw={500}>Features</Text>
-                  <Anchor href="#" fz="xs">
-                    View all
-                  </Anchor>
-                </Group>
+            </Link>
 
-                <Divider my="sm" />
-
-                <div className={classes.dropdownFooter}>
-                  <Group justify="space-between">
-                    <div>
-                      <Text fw={500} fz="sm">
-                        Get started
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        Their food sources have decreased, and their numbers
-                      </Text>
-                    </div>
-                    <Button variant="default">Get started</Button>
-                  </Group>
-                </div>
-              </HoverCard.Dropdown>
-            </HoverCard>
+            <Link href="/tickets/new" className={classes.link}>
+              Create Ticket
+            </Link>
+            <Link href="/orders" className={classes.link}>
+              Orders
+            </Link>
           </Group>
 
           <Group visibleFrom="sm">

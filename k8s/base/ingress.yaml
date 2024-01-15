@@ -5,6 +5,10 @@ metadata:
   name: ingress-service
   annotations:
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-credentials: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: 'http(s)://*.foo.bar, http://localhost:3000'
+    nginx.ingress.kubernetes.io/limit-rpm: '70'
 spec:
   ingressClassName: nginx
   rules:
@@ -30,6 +34,13 @@ spec:
             backend:
               service:
                 name: order-service
+                port:
+                  number: 3000
+          - path: /api/payments/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: payment-service
                 port:
                   number: 3000
           - path: /?(.*)

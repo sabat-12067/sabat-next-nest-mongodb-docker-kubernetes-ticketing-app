@@ -7,7 +7,6 @@ import {
 import { MikroORM } from '@mikro-orm/core';
 import { MikroOrmModule, MikroOrmMiddleware } from '@mikro-orm/nestjs';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
 import {
@@ -58,7 +57,6 @@ import { TicketsModule } from './tickets/tickets.module';
     HealthModule,
     NestPinoModule,
   ],
-  controllers: [AppController],
   providers: [
     {
       provide: APP_PIPE,

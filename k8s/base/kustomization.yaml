@@ -3,6 +3,7 @@ resources:
   - ingress.yaml
   - ./order-service/order-service.yaml
   - ./tickets-service/tickets-service.yaml
+  - ./payment-service/payment-service.yaml
   - ./web-client/web-client.yaml
 
 # configMapGenerator

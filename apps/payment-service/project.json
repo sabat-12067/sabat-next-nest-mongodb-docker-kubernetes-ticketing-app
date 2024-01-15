@@ -19,7 +19,9 @@
       },
       "configurations": {
         "development": {},
-        "production": {}
+        "production": {
+          "generatePackageJson": true
+        }
       }
     },
     "serve": {
@@ -46,6 +48,24 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/payment-service/jest.config.ts"
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "metadata": {
+          "images": ["mrtousif/payment-service"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
       }
     }
   },

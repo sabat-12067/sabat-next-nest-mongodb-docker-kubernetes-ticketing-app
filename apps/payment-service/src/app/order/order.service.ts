@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderServiceDto } from './dto/update-order.dto';
 import { OrderRepository } from './order.repository';
 import { EntityManager, wrap } from '@mikro-orm/core';
 import { Order } from './entities/order.entity';
 import { RpcException } from '@nestjs/microservices';
+import { OrderCreatedEventDto } from '@ticketing-app/nest-common';
 
 @Injectable()
 export class OrderService {
@@ -14,16 +14,17 @@ export class OrderService {
     private readonly em: EntityManager
   ) {}
 
-  async create(createOrderDto: CreateOrderDto) {
-    const { price, status, userId, id } = createOrderDto;
+  async create(createOrderDto: OrderCreatedEventDto) {
+    const { ticket, status, userId, id } = createOrderDto;
     const existingOrder = await this.orderRepository.findOne({ id });
     if (existingOrder) {
       this.logger.warn(`Order ${id} already exists`);
       return existingOrder;
     }
+    this.logger.log(createOrderDto, 'createOrderDto');
     const order = new Order({
       id,
-      price,
+      price: ticket.price,
       status,
       userId,
     });
