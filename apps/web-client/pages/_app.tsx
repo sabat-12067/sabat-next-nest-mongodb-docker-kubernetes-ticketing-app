@@ -12,9 +12,13 @@ function AppComponent({
   pageProps: { session, ...pageProps },
 }: AppProps) {
   return (
-    <MantineProvider theme={theme}>
-      <main className="app">
-        <SessionProvider session={session}>
+    <SessionProvider
+      session={session}
+      refetchInterval={10 * 60}
+      refetchOnWindowFocus={true}
+    >
+      <MantineProvider theme={theme}>
+        <main className="app">
           <HeaderMenu />
           <Container fluid>
             {Component.auth ? (
@@ -25,9 +29,9 @@ function AppComponent({
               <Component {...pageProps} />
             )}
           </Container>
-        </SessionProvider>
-      </main>
-    </MantineProvider>
+        </main>
+      </MantineProvider>
+    </SessionProvider>
   );
 }
 

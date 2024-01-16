@@ -10,8 +10,6 @@ interface Props {
 }
 
 const OrderIndex = ({ session, orders }: Props) => {
-  console.log(session);
-
   const rows = orders.map((order) => {
     return (
       <Table.Tr key={order.id}>

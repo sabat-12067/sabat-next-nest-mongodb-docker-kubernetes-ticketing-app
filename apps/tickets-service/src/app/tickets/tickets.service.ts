@@ -41,7 +41,9 @@ export class TicketsService {
   }
 
   async findAll() {
-    return await this.ticketRepository.find({});
+    return await this.ticketRepository.find({
+      orderId: undefined,
+    });
   }
 
   async findOne(id: string) {

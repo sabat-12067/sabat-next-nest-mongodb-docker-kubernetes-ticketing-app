@@ -21,23 +21,12 @@ export function HeaderMenu() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
 
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
   useEffect(() => {
     if (session?.error === 'RefreshAccessTokenError') {
       signOut();
     }
   }, [session]);
-
-  // Listen for when the page is visible, if the user switches tabs
-  // and makes our tab visible again, re-fetch the session
-  useEffect(() => {
-    const visibilityHandler = () =>
-      document.visibilityState === 'visible' && update();
-
-    window.addEventListener('visibilitychange', visibilityHandler, false);
-    return () =>
-      window.removeEventListener('visibilitychange', visibilityHandler, false);
-  }, [update]);
 
   return (
     <Box pb={120}>
@@ -51,12 +40,12 @@ export function HeaderMenu() {
             <Link href="/tickets/new" className={classes.link}>
               Create Ticket
             </Link>
-            <Link href="/orders" className={classes.link}>
-              Orders
-            </Link>
           </Group>
 
           <Group visibleFrom="sm">
+            <Link href="/orders" className={classes.link}>
+              Orders
+            </Link>
             <LoginButton />
           </Group>
 
@@ -80,16 +69,13 @@ export function HeaderMenu() {
         <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
           <Divider my="sm" />
 
-          <a href="#" className={classes.link}>
+          <Link href="#" className={classes.link}>
             Home
-          </a>
+          </Link>
 
-          <a href="#" className={classes.link}>
+          <Link href="#" className={classes.link}>
             Learn
-          </a>
-          <a href="#" className={classes.link}>
-            Academy
-          </a>
+          </Link>
 
           <Divider my="sm" />
 

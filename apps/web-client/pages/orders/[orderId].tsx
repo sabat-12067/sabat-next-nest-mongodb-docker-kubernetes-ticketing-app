@@ -35,7 +35,6 @@ const OrderShow = ({ currentUser }) => {
     },
     onSuccess: () => Router.push('/orders'),
   });
-  console.log(data);
 
   useEffect(() => {
     const findTimeLeft = () => {
