@@ -1,4 +1,4 @@
-# A Ticketing reservation app built using microservices and runs on Kubernetes
+# A Ticket reservation app built using microservices and runs on Kubernetes
 
 ![App diagram](./images/TicketingApp.drawio.png)
 
@@ -128,9 +128,3 @@ Nx comes with local caching already built-in (check your `nx.json`). On CI you m
 - [Set up remote caching](https://nx.dev/core-features/share-your-cache)
 - [Set up task distribution across multiple machines](https://nx.dev/nx-cloud/features/distribute-task-execution)
 - [Learn more how to setup CI](https://nx.dev/recipes/ci)
-
-## Connect with us!
-
-- [Join the community](https://nx.dev/community)
-- [Subscribe to the Nx Youtube Channel](https://www.youtube.com/@nxdevtools)
-- [Follow us on Twitter](https://twitter.com/nxdevtools)

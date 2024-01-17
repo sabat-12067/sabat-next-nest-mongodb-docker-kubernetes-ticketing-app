@@ -10,12 +10,9 @@ interface IUserInfo {
 
 @Injectable()
 export class AuthService {
-  openIdClient: Client;
   private readonly logger = new Logger(AuthService.name);
 
-  constructor(@InjectOIDC() openIdClient: Client) {
-    this.openIdClient = openIdClient;
-  }
+  constructor(@InjectOIDC() public openIdClient: Client) {}
 
   async getUserInfo(accessToken: string) {
     return await this.openIdClient.userinfo<IUserInfo>(accessToken);
